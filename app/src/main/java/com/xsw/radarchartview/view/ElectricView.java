@@ -1,5 +1,6 @@
-package com.xsw.radarchartview;
+package com.xsw.radarchartview.view;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -10,6 +11,7 @@ import android.graphics.Path;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -27,7 +29,7 @@ import java.util.List;
  * ——————————————————————————————————————————————————————————————————————
  */
 public class ElectricView extends View {
-
+    public static final int ANI_DURATION = 500;
     //最高电压
     public static final double U = 380.00;
     //最高电流
@@ -43,7 +45,7 @@ public class ElectricView extends View {
     private float delRadian = 0;
     //外接圆的半径
     private int radiu;
-
+    public float ratio = 1.0f;
     //中心点（x，y）
     private int centerX;
     private int centerY;
@@ -103,7 +105,13 @@ public class ElectricView extends View {
         invalidate();
     }
 
-    ;
+
+    public void setDataAni(List<DataModel> list) {
+        datas.clear();
+        datas.addAll(list);
+        startAni();
+
+    }
 
     void init(Context context, @Nullable AttributeSet attrs) {
         //背景
@@ -152,7 +160,7 @@ public class ElectricView extends View {
         //绘制数值
         for (int i = 0; i < datas.size(); i++) {
             framePaint.setColor(Color.parseColor(datas.get(i).arrowColor));
-            double curRadiu = datas.get(i).u / U * radiu;
+            double curRadiu = datas.get(i).u / U * radiu*ratio;
             float curRadian = (float) (((datas.get(i).phy + 270) % 360) / 180 * Math.PI);
             float dx = centerX + (float) (curRadiu * Math.cos(curRadian));
             float dy = centerY + (float) (curRadiu * Math.sin(curRadian));
@@ -164,7 +172,7 @@ public class ElectricView extends View {
                 canvas.drawText("U" + getText(i), dx - 20, dy - 30, valuePaint);
             }
             //电流
-            double curRadiuI = datas.get(i).i / I * radiu;
+            double curRadiuI = datas.get(i).i / I * radiu*ratio;
             float dxI = centerX + (float) (curRadiuI * Math.cos(curRadian));
             float dyI = centerY + (float) (curRadiuI * Math.sin(curRadian));
             path.moveTo(centerX, centerY);
@@ -297,6 +305,19 @@ public class ElectricView extends View {
         return "";
     }
 
+    private void startAni() {
+        final ValueAnimator animator = ValueAnimator.ofFloat(0, 1.0f);
+        animator.setDuration(ANI_DURATION);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                ratio = (float) animation.getAnimatedValue();
+                invalidate();
+            }
+        });
+        animator.start();
+    }
 
     public static class DataModel {
         public double u;

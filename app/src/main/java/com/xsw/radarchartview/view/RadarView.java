@@ -1,4 +1,4 @@
-package com.xsw.radarchartview;
+package com.xsw.radarchartview.view;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,6 +16,8 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+
+import com.xsw.radarchartview.R;
 
 import java.util.ArrayList;
 import java.util.List;
